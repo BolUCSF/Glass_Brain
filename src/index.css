@@ -5,9 +5,185 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #504848;
+  /* 可选：背景色 */
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* NIfTI 查看器容器 */
+.nifti-viewer {
+  width: 100%;
+  max-width: 1400px;
+  /* 最大宽度 */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 文件输入样式 */
+.nifti-viewer input[type="file"] {
+  margin-bottom: 20px;
+  display: block;
+}
+
+/* 视图容器 */
+.views {
+  display: flex;
+  /* 使用 flex 布局 */
+}
+
+/* 左侧视图容器 */
+.left-views {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 中间 3D 视图容器 */
+.center-3dview {
+  flex: 2 1 600px;
+  min-width: 600px;
+  padding: 0 20px;
+}
+
+/* 右侧标签控制容器 */
+.right-label-controls {
+  flex: 1 1 300px;
+  min-width: 300px;
+}
+
+/* 单个视图样式 */
+.view {
+  display: flex;
+  flex-direction: column;
+  background-color: #78777e;
+  /* 可选：背景色 */
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(39, 38, 42, 0.1);
+  /* 可选：阴影 */
+}
+
+/* 视图标题 */
+.view h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  align-self: center;
+}
+
+/* 左侧视图内容（canvas 和滑动条） */
+.left-views .view-content {
+  display: flex;
+  align-items: stretch;
+  /* 确保 canvas 和滑动条高度一致 */
+  gap: 10px;
+  width: 100%;
+  height: 280px;
+  padding: 10;
+  /* 固定高度，可根据需要调整 */
+}
+
+/* 左侧视图的 canvas */
+.left-views .view-content canvas {
+  width: 100%;
+  /* 占据剩余空间 */
+  height: 100%;
+  /* 占满容器高度 */
+  flex: 1;
+  padding: 10;
+  /* 让 canvas 占据主要空间 */
+}
+
+/* 左侧视图的垂直滑动条 */
+.left-views .view-content input[type="range"] {
+  writing-mode: vertical-lr;
+  /* 垂直方向 */
+  height: 100%;
+  /* 占满容器高度 */
+  margin: 5;
+  padding: 0;
+  /* 移除可能影响高度的内边距 */
+  transform: rotate(180deg);
+}
+
+
+.left-views .view-content input[type="range"]::-webkit-slider-runnable-track {
+  background: #d6c7ae;
+  width: 100%;
+  border-radius: 2px;
+}
+
+/* 中间 3D 视图的容器 */
+.center-3dview .view>div {
+  width: 100%;
+  height: auto;
+  /* 自适应内容高度 */
+}
+
+/* VTK 渲染容器 */
+.center-3dview .view>div>div {
+  width: 100%;
+  height: 100%;
+  /* 占满容器高度 */
+}
+
+/* Threshold 标签和滑动条容器 */
+.center-3dview .view>div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  /* 自适应高度 */
+}
+
+/* Threshold 滑动条样式 */
+.center-3dview input[type="range"] {
+  width: 100%;
+  margin-top: 10px;
+}
+
+
+
+.left-views .view-content input[type="range"]::-webkit-slider-thumb {
+  background: #426387;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.center-3dview input[type="range"]::-webkit-slider-runnable-track {
+  background: #d6c7ae;
+  width: 4px;
+  border-radius: 2px;
+}
+
+/* 右侧标签控制区域 */
+.right-label-controls .label-controls {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+/* 标签控制输入框 */
+.right-label-controls input[type="number"],
+.right-label-controls input[type="text"] {
+  margin: 5px 0;
+}
+
+/* 标签列表 */
+.right-label-controls .label-controls>div:last-child {
+  max-height: 770px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+/* 标签项 */
+.right-label-controls .label-controls>div:last-child>div {
+  padding: 5px;
+  cursor: pointer;
 }
