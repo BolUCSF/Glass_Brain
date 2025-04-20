@@ -286,208 +286,208 @@ function App() {
   };
 
   // 绘制 2D 切片
-// Assume imageData, t1ImageData, t2ImageData, header, labels are in scope
+  // Assume imageData, t1ImageData, t2ImageData, header, labels are in scope
 
-const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
-  // Initial checks
-  if (!imageData || !canvasRef.current || !header) {
+  const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
+    // Initial checks
+    if (!imageData || !canvasRef.current || !header) {
       return;
-  }
+    }
 
-  const dims = header.dims.slice(1, 4);
-  const ctx = canvasRef.current.getContext('2d');
+    const dims = header.dims.slice(1, 4);
+    const ctx = canvasRef.current.getContext('2d');
 
-  const dataWidth = plane === 'sagittal' ? dims[1] : dims[0];
-  const dataHeight = plane === 'axial' ? dims[1] : dims[2];
+    const dataWidth = plane === 'sagittal' ? dims[1] : dims[0];
+    const dataHeight = plane === 'axial' ? dims[1] : dims[2];
 
-  // Note: aspectRatio is calculated but not currently used for drawing/scaling within the function
-  // const aspectRatio = dataWidth / dataHeight;
+    // Note: aspectRatio is calculated but not currently used for drawing/scaling within the function
+    // const aspectRatio = dataWidth / dataHeight;
 
-  const canvasWidth = dataWidth;
-  const canvasHeight = dataHeight;
-  // Set the canvas element's intrinsic resolution to the data dimensions
-  canvasRef.current.width = canvasWidth;
-  canvasRef.current.height = canvasHeight;
+    const canvasWidth = dataWidth;
+    const canvasHeight = dataHeight;
+    // Set the canvas element's intrinsic resolution to the data dimensions
+    canvasRef.current.width = canvasWidth;
+    canvasRef.current.height = canvasHeight;
 
-  // --- Draw Main Image (Grayscale) ---
+    // --- Draw Main Image (Grayscale) ---
 
-  // Get scalar data from the main image
-  const scalars = imageData.getPointData().getScalars().getData();
+    // Get scalar data from the main image
+    const scalars = imageData.getPointData().getScalars().getData();
 
-  // Create a temporary ImageData object for the main slice
-  const imageData2D = ctx.createImageData(canvasWidth, canvasHeight);
-  const data = imageData2D.data; // The pixel data array
+    // Create a temporary ImageData object for the main slice
+    const imageData2D = ctx.createImageData(canvasWidth, canvasHeight);
+    const data = imageData2D.data; // The pixel data array
 
-  // Populate main image data (grayscale, opaque)
-  for (let y = 0; y < canvasHeight; y++) {
+    // Populate main image data (grayscale, opaque)
+    for (let y = 0; y < canvasHeight; y++) {
       let dataY = y;
       // Apply vertical flip to the source data Y coordinate if needed
       if (flipVertical) {
-          dataY = canvasHeight - 1 - y;
+        dataY = canvasHeight - 1 - y;
       }
       for (let x = 0; x < canvasWidth; x++) {
-          let value;
-          // Calculate 1D index into scalars based on x, dataY, slice, plane, dims
-          if (plane === 'axial') {
-              value = scalars[x + dataY * dims[0] + slice * dims[0] * dims[1]];
-          } else if (plane === 'coronal') {
-              value = scalars[x + slice * dims[0] + dataY * dims[0] * dims[1]];
-          } else { // sagittal
-              value = scalars[slice + x * dims[0] + dataY * dims[0] * dims[1]];
-          }
+        let value;
+        // Calculate 1D index into scalars based on x, dataY, slice, plane, dims
+        if (plane === 'axial') {
+          value = scalars[x + dataY * dims[0] + slice * dims[0] * dims[1]];
+        } else if (plane === 'coronal') {
+          value = scalars[x + slice * dims[0] + dataY * dims[0] * dims[1]];
+        } else { // sagittal
+          value = scalars[slice + x * dims[0] + dataY * dims[0] * dims[1]];
+        }
 
-          const intensity = Math.min(255, Math.max(0, value));
-          const index = (y * canvasWidth + x) * 4; // Index in the imageData2D.data array (display Y)
-          data[index] = intensity;     // Red channel
-          data[index + 1] = intensity; // Green channel
-          data[index + 2] = intensity; // Blue channel
-          data[index + 3] = 255;       // Alpha channel (fully opaque)
+        const intensity = Math.min(255, Math.max(0, value));
+        const index = (y * canvasWidth + x) * 4; // Index in the imageData2D.data array (display Y)
+        data[index] = intensity;     // Red channel
+        data[index + 1] = intensity; // Green channel
+        data[index + 2] = intensity; // Blue channel
+        data[index + 3] = 255;       // Alpha channel (fully opaque)
       }
-  }
+    }
 
-  // Put the main image data onto the canvas context
-  ctx.putImageData(imageData2D, 0, 0);
+    // Put the main image data onto the canvas context
+    ctx.putImageData(imageData2D, 0, 0);
 
 
-  // --- Draw Masks (T1 and T2) as Semi-Transparent Overlay ---
+    // --- Draw Masks (T1 and T2) as Semi-Transparent Overlay ---
 
-  if (t1ImageData || t2ImageData) {
+    if (t1ImageData || t2ImageData) {
       const t1Scalars = t1ImageData ? t1ImageData.getPointData().getScalars().getData() : null;
       const t2Scalars = t2ImageData ? t2ImageData.getPointData().getScalars().getData() : null;
 
       // Loop through each pixel on the canvas
       for (let y = 0; y < canvasHeight; y++) {
-          let dataY = y;
-           // Apply vertical flip to the source data Y coordinate if needed
-          if (flipVertical) {
-              dataY = canvasHeight - 1 - y;
+        let dataY = y;
+        // Apply vertical flip to the source data Y coordinate if needed
+        if (flipVertical) {
+          dataY = canvasHeight - 1 - y;
+        }
+        for (let x = 0; x < canvasWidth; x++) {
+          let t1Value = 0;
+          let t2Value = 0;
+
+          // Calculate 1D index into scalar data based on x, dataY, slice, plane, dims
+          let scalarIndex;
+          if (plane === 'axial') {
+            scalarIndex = x + dataY * dims[0] + slice * dims[0] * dims[1];
+          } else if (plane === 'coronal') {
+            scalarIndex = x + slice * dims[0] + dataY * dims[0] * dims[1];
+          } else { // sagittal
+            scalarIndex = slice + x * dims[0] + dataY * dims[0] * dims[1];
           }
-          for (let x = 0; x < canvasWidth; x++) {
-              let t1Value = 0;
-              let t2Value = 0;
 
-              // Calculate 1D index into scalar data based on x, dataY, slice, plane, dims
-               let scalarIndex;
-               if (plane === 'axial') {
-                  scalarIndex = x + dataY * dims[0] + slice * dims[0] * dims[1];
-               } else if (plane === 'coronal') {
-                  scalarIndex = x + slice * dims[0] + dataY * dims[0] * dims[1];
-               } else { // sagittal
-                  scalarIndex = slice + x * dims[0] + dataY * dims[0] * dims[1];
-               }
-
-              // Read T1 scalar value if T1 data exists and index is valid
-              if (t1Scalars && scalarIndex >= 0 && scalarIndex < t1Scalars.length) {
-                  t1Value = t1Scalars[scalarIndex];
-              }
-              // Read T2 scalar value if T2 data exists and index is valid
-              if (t2Scalars && scalarIndex >= 0 && scalarIndex < t2Scalars.length) {
-                  t2Value = t2Scalars[scalarIndex];
-              }
-
-              let r = 0, g = 0, b = 0;
-              let alpha = 0;
-
-              // Determine color and alpha based on mask values
-              if (t1Value > 0 && t2Value > 0) {
-                   // Both T1 and T2 have non-zero values (overlap) -> White
-                   r = 255; g = 255; b = 0;
-                   alpha = t1Opacity; // Slightly higher alpha for overlap
-              } else if (t1Value > 0) {
-                   // Only T1 has non-zero value -> Red
-                   r = 255; g = 255; b = 0;
-                   alpha = t1Opacity; // Semi-transparent
-              } else if (t2Value > 0) {
-                   // Only T2 has non-zero value -> Blue
-                   r = 0; g = 255; b = 0;
-                   alpha = t2Opacity; // Semi-transparent
-              }
-
-              // If there is a mask pixel (alpha > 0), draw a semi-transparent rectangle
-              if (alpha > 0) {
-                  ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                  ctx.globalAlpha = alpha; // Set transparency for this drawing operation
-                  // Draw a 1x1 rectangle at the current canvas pixel (x, y)
-                  // This pixel will blend with what's already there based on globalAlpha
-                  ctx.fillRect(x, y, 1, 1);
-              }
+          // Read T1 scalar value if T1 data exists and index is valid
+          if (t1Scalars && scalarIndex >= 0 && scalarIndex < t1Scalars.length) {
+            t1Value = t1Scalars[scalarIndex];
           }
+          // Read T2 scalar value if T2 data exists and index is valid
+          if (t2Scalars && scalarIndex >= 0 && scalarIndex < t2Scalars.length) {
+            t2Value = t2Scalars[scalarIndex];
+          }
+
+          let r = 0, g = 0, b = 0;
+          let alpha = 0;
+
+          // Determine color and alpha based on mask values
+          if (t1Value > 0 && t2Value > 0) {
+            // Both T1 and T2 have non-zero values (overlap) -> White
+            r = 255; g = 255; b = 0;
+            alpha = t1Opacity; // Slightly higher alpha for overlap
+          } else if (t1Value > 0) {
+            // Only T1 has non-zero value -> Red
+            r = 255; g = 255; b = 0;
+            alpha = t1Opacity; // Semi-transparent
+          } else if (t2Value > 0) {
+            // Only T2 has non-zero value -> Blue
+            r = 0; g = 255; b = 0;
+            alpha = t2Opacity; // Semi-transparent
+          }
+
+          // If there is a mask pixel (alpha > 0), draw a semi-transparent rectangle
+          if (alpha > 0) {
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.globalAlpha = alpha; // Set transparency for this drawing operation
+            // Draw a 1x1 rectangle at the current canvas pixel (x, y)
+            // This pixel will blend with what's already there based on globalAlpha
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
       }
       // Reset globalAlpha to 1.0 after drawing all mask pixels
       ctx.globalAlpha = 1.0;
-  }
-  // --- End Draw Masks ---
+    }
+    // --- End Draw Masks ---
 
 
-  // --- Draw Labels (Circles) --- (unchanged logic)
-  const planeIndex = plane === 'axial' ? 2 : plane === 'coronal' ? 1 : 0;
+    // --- Draw Labels (Circles) --- (unchanged logic)
+    const planeIndex = plane === 'axial' ? 2 : plane === 'coronal' ? 1 : 0;
 
-  if (labels) {
-     labels.forEach(label => {
-       if (!Array.isArray(label.position) || label.position.length < 3) {
-           console.warn("Label position is not a valid array:", label);
-           return;
-       }
+    if (labels) {
+      labels.forEach(label => {
+        if (!Array.isArray(label.position) || label.position.length < 3) {
+          console.warn("Label position is not a valid array:", label);
+          return;
+        }
 
-       let position = [...label.position];
-       let rgb = [];
-       if (!label.rgb || typeof label.rgb.r !== 'number' || typeof label.rgb.g !== 'number' || typeof label.rgb.b !== 'number') {
-            console.warn("Label rgb is not valid:", label);
-           rgb = [255, 255, 255]; // Default to white
-       } else {
-           rgb = [
-               Math.round(label.rgb.r * 255),
-               Math.round(label.rgb.g * 255),
-               Math.round(label.rgb.b * 255)
-           ];
-       }
+        let position = [...label.position];
+        let rgb = [];
+        if (!label.rgb || typeof label.rgb.r !== 'number' || typeof label.rgb.g !== 'number' || typeof label.rgb.b !== 'number') {
+          console.warn("Label rgb is not valid:", label);
+          rgb = [255, 255, 255]; // Default to white
+        } else {
+          rgb = [
+            Math.round(label.rgb.r * 255),
+            Math.round(label.rgb.g * 255),
+            Math.round(label.rgb.b * 255)
+          ];
+        }
 
-       position[0] = Math.round(position[0]);
-       position[1] = Math.round(position[1]);
-       position[2] = Math.round(position[2]);
+        position[0] = Math.round(position[0]);
+        position[1] = Math.round(position[1]);
+        position[2] = Math.round(position[2]);
 
-       const distance = Math.abs(position[planeIndex] - slice);
-       const proximityThreshold = 3;
-       if (distance >= proximityThreshold) return;
+        const distance = Math.abs(position[planeIndex] - slice);
+        const proximityThreshold = 3;
+        if (distance >= proximityThreshold) return;
 
-       const maxDistanceForAlpha = 5;
-       const alpha = 1.0 - distance / maxDistanceForAlpha;
+        const maxDistanceForAlpha = 5;
+        const alpha = 1.0 - distance / maxDistanceForAlpha;
 
-       let dx, dy;
+        let dx, dy;
 
-       if (plane === 'axial') {
-         dx = position[0];
-         dy = position[1];
-       } else if (plane === 'coronal') {
-         dx = position[0];
-         dy = position[2];
-       } else if (plane === 'sagittal') {
-         dx = position[1];
-         dy = position[2];
-       } else {
+        if (plane === 'axial') {
+          dx = position[0];
+          dy = position[1];
+        } else if (plane === 'coronal') {
+          dx = position[0];
+          dy = position[2];
+        } else if (plane === 'sagittal') {
+          dx = position[1];
+          dy = position[2];
+        } else {
           console.error("Unknown plane:", plane);
           return;
-       }
+        }
 
-       // Apply vertical flip to the drawing Y coordinate
-       if (flipVertical) {
-         dy = canvasHeight - dy;
-       }
+        // Apply vertical flip to the drawing Y coordinate
+        if (flipVertical) {
+          dy = canvasHeight - dy;
+        }
 
-       // Draw the circle (label)
-       ctx.beginPath();
-       ctx.arc(dx, dy, 4, 0, 2 * Math.PI);
-       // Use a fixed alpha for the label circle itself, not affected by distance
-       // The calculated 'alpha' based on distance could be used here if desired
-       // e.g., ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
-       // Let's keep it opaque for simplicity based on original code
-       ctx.fillStyle = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`; // Opaque color
-       ctx.fill();
-       ctx.strokeStyle = '#000'; // Optional: black outline
-       ctx.stroke();
-     });
-  } // End if labels
-};
+        // Draw the circle (label)
+        ctx.beginPath();
+        ctx.arc(dx, dy, 4, 0, 2 * Math.PI);
+        // Use a fixed alpha for the label circle itself, not affected by distance
+        // The calculated 'alpha' based on distance could be used here if desired
+        // e.g., ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${alpha})`;
+        // Let's keep it opaque for simplicity based on original code
+        ctx.fillStyle = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`; // Opaque color
+        ctx.fill();
+        ctx.strokeStyle = '#000'; // Optional: black outline
+        ctx.stroke();
+      });
+    } // End if labels
+  };
 
   // 创建标签演员
   const createLabelActor = (position, text, rgb, size, info, index) => {
@@ -582,6 +582,51 @@ const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
     genericRenderWindow.current.getRenderWindow().render();
   };
 
+  const exportLabels = () => {
+    // Check if there are any labels to export
+    if (!labels || labels.length === 0) {
+      console.warn("No labels to export.");
+      // Optionally, show a user message indicating no data to export
+      return;
+    }
+  
+    // Convert the labels array to a JSON string
+    // Use JSON.stringify with null and 2 for pretty printing the JSON
+    const newExportLabels = labels.map(label => ({
+      x: label.position[0],
+      y: label.position[1],
+      z: label.position[2],
+      name: label.text,
+      size: label.size,
+      info: label.info || ''
+    }))
+    const jsonString = JSON.stringify(newExportLabels, null, 2);
+  
+    // Create a Blob with the JSON string and set the MIME type
+    const blob = new Blob([jsonString], { type: 'application/json' });
+  
+    // Create a URL for the blob
+    const url = URL.createObjectURL(blob);
+  
+    // Create a temporary anchor element to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    // Set the download attribute with the desired filename
+    a.download = 'labels.json'; // You can customize the filename here
+  
+    // Append the anchor to the body (necessary for Firefox)
+    document.body.appendChild(a);
+  
+    // Programmatically click the anchor to trigger the download
+    a.click();
+  
+    // Clean up by removing the anchor and revoking the blob URL
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  
+    console.log("Labels exported as labels.json");
+  };
+
   // 删除标签
   const deleteLabel = () => {
     // Check if a label is selected and renderer exists
@@ -633,7 +678,7 @@ const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
     labelActors.current = [];
 
     // Add actors for the current (updated) set of labels
-    labels.forEach((label, index) => { 
+    labels.forEach((label, index) => {
       const actor = createLabelActor(
         label.position,
         label.text,
@@ -931,7 +976,7 @@ const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
       {/* File Upload and Confirmation Area */}
       {(!isNiftiLoaded || !isDataReady) && (
         <div className="upload-section"> {/* Upload area panel */}
-          <h2 className="upload-section-title">Display MRI Glass Brain<br /> with Biopsy Samples</h2> {/* Title */}
+          <h2 className="upload-section-title">Display MRI Glass Brain<br /> with Biopsy Samples(dev)</h2> {/* Title */}
 
           <div className="upload-inputs-grid"> {/* Grid/Flex layout for inputs */}
             {/* NIfTI Upload Group */}
@@ -1272,6 +1317,16 @@ const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
                     </div>
                   </div>
                 )}
+                <div className="confirm-button-container">
+                  <button
+                    onClick={exportLabels}
+                    // Button enabled when main NIfTI and JSON are loaded
+                    disabled={labels.length === 0}
+                    className="confirm-button" // Class for styling
+                  >
+                    Export Labels
+                  </button>
+                </div>
               </div> {/* End label-controls */}
             </div> {/* End Label Controls Panel */}
           </div> {/* End right-label-controls-panel */}
