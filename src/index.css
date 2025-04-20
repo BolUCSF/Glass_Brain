@@ -1,189 +1,805 @@
+/* 使用 CSS 变量定义颜色 */
+:root {
+  --background-color: #343a40; /* 深灰色背景 */
+  --card-background-color: #454d55; /* 卡片背景 */
+  --text-color: #dee2e6; /* 浅色文字 */
+  --primary-color: #007bff; /* 主题蓝色 */
+  --primary-hover-color: #0056b3; /* 悬停蓝色 */
+  --success-color: #28a745; /* 成功绿色 */
+  --warning-color: #ffc107; /* 警告黄色 */
+  --danger-color: #dc3545; /* 危险红色 */
+  --border-color: #5a6268; /* 边框颜色 */
+  --border-radius: 8px; /* 边框圆角 */
+  --padding-small: 10px; /* 小内边距 */
+  --padding-medium: 20px; /* 中等内边距 */
+  --margin-bottom-small: 10px; /* 小下外边距 */
+  --margin-bottom-medium: 20px; /* 中等下外边距 */
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* Align to top */
   min-height: 100vh;
-  background-color: #504848;
-  /* 可选：背景色 */
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: var(--padding-medium);
+  box-sizing: border-box;
+  overflow-y: auto; /* Allow body scroll if content exceeds viewport height */
 }
 
-/* NIfTI 查看器容器 */
+/* NIfTI Viewer Outer Container */
 .nifti-viewer {
   width: 100%;
-  max-width: 1400px;
-  /* 最大宽度 */
-  padding: 20px;
+  max-width: 2000px; /* Adjusted max-width to accommodate the 3-column layout */
+  margin-top: var(--padding-medium);
+  box-sizing: border-box;
+  display: flex; /* Use flex to potentially center the upload section */
+  justify-content: center;
+  flex-direction: column; /* Stack upload section and viewer area vertically */
+  gap: var(--padding-medium); /* Gap between sections */
+}
+
+/* Upload Area Panel */
+.upload-section {
+  background-color: var(--card-background-color);
+  min-width: 500px; /* Minimum width for the upload section */
+  padding: var(--padding-medium);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: var(--margin-bottom-medium);
+  width: 100%; /* Allow it to take full width up to max-width of container */
+  max-width: 600px; /* Optional: Give upload section a smaller max-width if desired */
+  align-self: center; /* Center the upload section in the flex container */
+}
+
+.upload-section-title {
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: var(--padding-medium);
+  font-size: 1.8em; /* Slightly larger title */
+}
+
+/* Input Grid Layout */
+.upload-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--padding-medium);
+  margin-bottom: var(--padding-medium);
+}
+
+/* Single Upload Group */
+.upload-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+.upload-input {
+  display: block; /* Ensure it takes full width */
+  width: 100%; /* Make input fill its container */
+  padding: 10px; /* Increased padding */
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: #6c757d;
+  color: var(--text-color);
+  cursor: pointer;
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Customizing the file input button appearance (browser-dependent and tricky) */
+.upload-input::file-selector-button {
+  background-color: var(--border-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 15px;
+  transition: background-color 0.2s ease;
+}
+
+.upload-input::file-selector-button:hover {
+  background-color: #5a6268;
+}
+
+/* Status Indicator */
+.status-indicator {
+  margin-left: 10px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #ced4da; /* Default lighter color */
+}
+
+.status-indicator.loaded {
+  color: var(--success-color);
+}
+
+/* Confirm Button Container */
+.confirm-button-container {
+  text-align: center;
+  margin-top: var(--padding-medium);
+}
+
+/* Confirm Button */
+.confirm-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  min-width: 180px; /* Slightly wider button */
+  font-weight: bold;
+}
+
+.confirm-button:hover:not(:disabled) {
+  background-color: var(--primary-hover-color);
+}
+
+.confirm-button:active:not(:disabled) {
+  background-color: #004085;
+}
+
+.confirm-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Warning Message */
+.warning-message {
+  margin: var(--margin-bottom-medium) auto; /* Center the warning message */
+  padding: var(--padding-medium);
+  background-color: #ffc10733;
+  border: 1px solid var(--warning-color);
+  border-radius: var(--border-radius);
+  color: var(--warning-color);
+  font-weight: bold;
+  max-width: 600px; /* Match upload section max-width */
+  text-align: center;
+  align-self: center; /* Center the warning message in the flex container */
+}
+
+
+/* --- Viewer Area Styles --- */
+
+/* Main Viewer Layout Container */
+.viewer-area {
+  display: flex; /* Use flexbox for the main columns */
+  gap: var(--padding-medium); /* Gap between columns */
+  width: 100%;
+  flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+  /* 如果整体高度仍然过高，可以考虑给 viewer-area 设置 max-height */
+  /* max-height: calc(100vh - 80px); /* Example: 100vh minus header/footer space */
+  /* overflow-y: auto; /* If setting max-height, allow scrolling */
+}
+
+/* Panel Base Style */
+.view-panel {
+  background-color: var(--card-background-color);
+  padding: var(--padding-medium);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.view-panel h3 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: var(--padding-medium);
+  font-size: 1.3em;
+}
+
+/* Left Column Panel (2D Views) */
+.left-views-panel {
+  flex: 1 1 300px; /* Flex properties */
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-medium); /* Gap between 2D view panels */
+  /* 如果需要，可以为左侧面板设置最大高度，以约束所有 2D 视图的总高度 */
+  /* max-height: 800px; /* Example max height for the entire left column */
+}
+
+/* 2D View Content (Canvas + Slider) - Base Style */
+.view-content-2d {
+  display: flex;
+  align-items: center;
+  gap: var(--padding-small);
+  width: 100%;
+  /* 移除这里的默认 max-height */
+  min-height: 0; /* 防止 flexbox 潜在的最小尺寸问题 */
+  flex-shrink: 0; /* 防止容器在空间不足时缩小 */
+}
+
+/* 为不同的视图设置具体的最大高度 */
+.view-content-2d.axial {
+  max-height: 250px;
+}
+
+.view-content-2d.coronal,
+.view-content-2d.sagittal {
+  max-height: 200px;
+}
+
+/* View Canvas */
+.view-canvas {
+  width: 100%; /* Canvas 占据其父容器（view-content-2d）的全部宽度 */
+  height: auto; /* 高度由 aspect-ratio 和父容器约束决定 */
+  /* aspect-ratio: 1 / 1; 保持 1:1 的宽高比，使其为正方形 */
+  flex-grow: 1; /* 允许 canvas 在父容器中根据 aspect-ratio 增长 */
+  flex-shrink: 1; /* 允许 canvas 缩小 */
+  flex-basis: 0; /* 默认 flex basis */
+  background-color: #000; /* 黑色背景 */
+  object-fit: contain; /* 确保图像在 canvas 内等比例缩放显示 */
+}
+
+/* Vertical Slice Slider - Base Style */
+.slice-slider {
+  writing-mode: vertical-lr;
+  height: 100%; /* 占据父容器 (view-content-2d) 的全部高度，父容器的高度被 max-height 约束 */
+  margin: 0 var(--padding-small) 0 0;
+  padding: 0;
+  transform: rotate(180deg);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  flex-shrink: 0; /* 防止滑块缩小 */
+}
+
+/* Slider Track and Thumb styles */
+.slice-slider::-webkit-slider-runnable-track {
+  background: var(--border-color);
+  height: 6px;
+  border-radius: 3px;
+}
+
+.slice-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px;
+  transition: background-color 0.2s ease;
+}
+
+.slice-slider::-webkit-slider-thumb:hover {
+  background-color: var(--primary-hover-color);
+}
+
+
+/* Center Column Panel (3D View + Controls) */
+.center-3dview-panel {
+  flex: 2 1 900px; /* Flex properties */
+  min-width: 900px; /* Minimum width */
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-medium); /* Gap between 3D view panel and controls below */
+}
+
+/* Container for 3D view and overlays */
+.view-content-3d-container {
+  position: relative; /* Needed for absolute positioning of children */
+  width: 100%;
+  flex-grow: 1; /* Allow container to grow */
+  /* Define a height for the 3D area, either fixed or based on viewport height */
+  height: 900px; /*Example fixed height, adjust as needed
+  /* Or using viewport height: height: 60vh; */
+  /*background-color: #000; /* Black background for 3D view area */
+  border-radius: var(--border-radius); /* Match panel border radius */
+  overflow: hidden; /* Hide anything outside the bounds */
+}
+
+
+/* VTK Render Area */
+.vtk-render-area {
+  position: absolute; /* Position relative to parent container */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-color handled by .view-content-3d-container */
+}
+
+/* Labels Toggle Checkbox Control */
+.labels-toggle-control {
+  position: absolute;
+  top: var(--padding-small);
+  right: var(--padding-small);
+  background: rgba(92, 137, 185, 0.8); /* Semi-transparent background */
+  padding: 8px 12px; /* Adjusted padding */
+  border-radius: 4px;
+  z-index: 10; /* Ensure it's above the 3D viewer */
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+.labels-toggle-control label {
+   display: flex; /* Align checkbox and text */
+   align-items: center;
+   cursor: pointer;
+}
+
+.labels-toggle-control input[type="checkbox"] {
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+
+/* Biopsy Info Table */
+.biopsy-info-table {
+  position: absolute;
+  top: var(--padding-small);
+  left: var(--padding-small);
+  background: rgba(92, 137, 185, 0.8); /* Semi-transparent background */
+  padding: var(--padding-small);
+  border-radius: 4px;
+  z-index: 10; /* Ensure it's above the 3D viewer */
+  font-size: 0.9em;
+  color: var(--text-color);
+  border-collapse: collapse; /* Remove space between table borders */
+}
+
+.biopsy-info-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Light separator */
+  color: inherit; /* Ensure td text color is inherited */
+}
+
+.biopsy-info-table tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+.biopsy-info-table td:first-child {
+  font-weight: bold;
+  padding-right: 15px; /* Space between key and value */
+  color: inherit; /* Ensure td text color is inherited */
+}
+
+
+/* Viewer Controls (Sliders below 3D view) */
+.viewer-controls {
+  display: flex; /* Arrange children (the two groups) side-by-side */
+  flex-direction: row; /* 显式指定水平排列 */
+  gap: var(--padding-medium); /* Gap between the two control groups */
+  padding-top: var(--padding-medium); /* Space above controls */
+  border-top: 1px solid var(--border-color); /* Separator line */
+  flex-wrap: nowrap; /* Allow groups to stack on smaller screens */
+  align-self: stretch; /* Stretch to fill center column width */
+}
+
+/* Base style for the control group panels (Image Adjustment, Opacity Change) */
+.image-adjustment-controls,
+.opacity-controls {
+  flex: 1 1 280px; /* Allow groups to grow/shrink, with a preferred basis */
+  background-color: rgba(90, 98, 104, 0.3); /* Slightly distinct background */
+  padding: var(--padding-medium);
+  border-radius: var(--border-radius);
+  display: flex; /* Use flex for title and content */
+  flex-direction: column; /* Stack title and content */
+  gap: var(--padding-small); /* Gap between title and content */
+}
+
+/* Style for the group titles */
+.image-adjustment-controls h4,
+.opacity-controls h4 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.1em;
+  text-align: center; /* Center the group titles */
+  margin-bottom: var(--padding-small); /* Space below title */
+  font-weight: bold;
+}
+
+/* Inner container for sliders within each group */
+.controls-group-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--margin-bottom-small); /* Space between individual slider groups */
+  flex-grow: 1; /* Allow content area to grow */
+}
+
+
+/* Control Group (single label + slider pair) - within controls-group-content */
+.control-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.control-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+/* Generic Control Slider Style */
+.control-slider {
+  width: 100%;
+  cursor: pointer;
+   -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+/* Slider Track and Thumb styles */
+.control-slider::-webkit-slider-runnable-track {
+  background: var(--border-color);
+  height: 6px;
+  border-radius: 3px;
+}
+
+.control-slider::-webkit-slider-thumb {
+   -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px;
+  transition: background-color 0.2s ease;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+  background-color: var(--primary-hover-color);
+}
+
+
+/* Right Column Panel (Label Controls & List) */
+.right-label-controls-panel {
+  flex: 1 1 370px; /* Flex properties */
+  width: 370px; /* Minimum width */
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-medium);
+}
+
+/* Main Label Controls Area (inside the panel) */
+.label-controls {
+  padding: var(--padding-medium);
+  border-radius: var(--border-radius);
+  background-color: rgba(90, 98, 104, 0.3); /* Slightly lighter background for the controls block */
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--margin-bottom-medium); /* Space between control groups within this area */
+  flex-grow: 1; /* Allow controls area to grow if needed */
+}
+
+
+/* Coordinate Inputs Group */
+.coords-input-group {
+  display: flex;
+  gap: var(--padding-small); /* Space between X, Y, Z inputs */
+  align-items: center; /* Vertically align items */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.coord-input {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between label (X:) and input */
+}
+
+.coord-input-field {
+  width: 60px; /* Fixed width for coordinate inputs */
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #6c757d;
+  color: var(--text-color);
   box-sizing: border-box;
 }
 
-/* 文件输入样式 */
-.nifti-viewer input[type="file"] {
-  margin-bottom: 20px;
-  display: block;
-}
 
-/* 视图容器 */
-.views {
+/* Label Action Buttons Group */
+.label-action-buttons {
   display: flex;
-  /* 使用 flex 布局 */
+  gap: var(--padding-small); /* Space between Add, Update, Delete buttons */
+  /* justify-content: center; /* Center buttons if desired */ 
+  flex-wrap: wrap; /* Allow buttons to wrap */
 }
 
-/* 左侧视图容器 */
-.left-views {
-  flex: 1 1 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+/* Control Button Styles */
+.control-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
-/* 中间 3D 视图容器 */
-.center-3dview {
-  flex: 2 1 600px;
-  min-width: 600px;
-  padding: 0 20px;
+.control-button:hover:not(:disabled) {
+  background-color: var(--primary-hover-color);
 }
 
-/* 右侧标签控制容器 */
-.right-label-controls {
-  flex: 1 1 300px;
-  min-width: 300px;
+.control-button:active:not(:disabled) {
+  background-color: #004085;
 }
 
-/* 单个视图样式 */
-.view {
-  display: flex;
-  flex-direction: column;
-  background-color: #78777e;
-  /* 可选：背景色 */
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(39, 38, 42, 0.1);
-  /* 可选：阴影 */
+.control-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* 视图标题 */
-.view h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.2em;
-  align-self: center;
+.danger-button {
+  background-color: var(--danger-color);
 }
 
-/* 左侧视图内容（canvas 和滑动条） */
-.left-views .view-content {
-  display: flex;
-  align-items: stretch;
-  /* 确保 canvas 和滑动条高度一致 */
-  gap: 10px;
+.danger-button:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.danger-button:active:not(:disabled) {
+  background-color: #bd2130;
+}
+
+/* Tag/Info Input Group */
+.tag-info-input-group {
+   display: flex;
+   flex-direction: column;
+   gap: var(--margin-bottom-small); /* Space between tag and info inputs */
+}
+
+.control-text-input {
   width: 100%;
-  height: 280px;
-  padding: 10;
-  /* 固定高度，可根据需要调整 */
-}
-
-/* 左侧视图的 canvas */
-.left-views .view-content canvas {
-  width: 100%;
-  /* 占据剩余空间 */
-  height: 100%;
-  /* 占满容器高度 */
-  flex: 1;
-  padding: 10;
-  /* 让 canvas 占据主要空间 */
-}
-
-/* 左侧视图的垂直滑动条 */
-.left-views .view-content input[type="range"] {
-  writing-mode: vertical-lr;
-  /* 垂直方向 */
-  height: 100%;
-  /* 占满容器高度 */
-  margin: 5;
-  padding: 0;
-  /* 移除可能影响高度的内边距 */
-  transform: rotate(180deg);
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #6c757d;
+  color: var(--text-color);
+  box-sizing: border-box;
+  margin-top: 5px; /* Space above input field */
 }
 
 
-.left-views .view-content input[type="range"]::-webkit-slider-runnable-track {
-  background: #d6c7ae;
-  width: 100%;
-  border-radius: 2px;
+/* Label List Container */
+.label-list-container {
+  margin-top: var(--padding-medium); /* Space above the list */
+  border-top: 1px solid var(--border-color); /* Separator line */
+  padding-top: var(--padding-medium);
 }
 
-/* 中间 3D 视图的容器 */
-.center-3dview .view>div {
-  width: 100%;
-  height: auto;
-  /* 自适应内容高度 */
+.label-list-container h4 {
+  margin-top: 0;
+  margin-bottom: var(--margin-bottom-small);
+  color: var(--text-color);
+  font-size: 1.1em;
+  font-weight: bold;
 }
 
-/* VTK 渲染容器 */
-.center-3dview .view>div>div {
-  width: 100%;
-  height: 100%;
-  /* 占满容器高度 */
-}
-
-/* Threshold 标签和滑动条容器 */
-.center-3dview .view>div:last-child {
+/* Scrollable Label List */
+.label-list {
+  max-height: 570px; /* Set max height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: var(--padding-small);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: auto;
-  /* 自适应高度 */
+  gap: 5px; /* Space between list items */
 }
 
-/* Threshold 滑动条样式 */
-.center-3dview input[type="range"] {
-  width: 100%;
-  margin-top: 10px;
+/* Style scrollbar for better appearance */
+.label-list::-webkit-scrollbar {
+width: 8px;
+}
+
+.label-list::-webkit-scrollbar-track {
+background: #6c757d; /* Track color */
+border-radius: 10px;
+}
+
+.label-list::-webkit-scrollbar-thumb {
+background: var(--primary-color); /* Thumb color */
+border-radius: 10px;
+}
+
+.label-list::-webkit-scrollbar-thumb:hover {
+background: var(--primary-hover-color); /* Thumb hover color */
 }
 
 
+/* Individual Label Item */
+.label-item {
+  padding: var(--padding-small);
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+  display: flex; /* Use flex for color swatch and text */
+  align-items: flex-start; /* Align items to the top */
+  gap: var(--padding-small);
+}
 
-.left-views .view-content input[type="range"]::-webkit-slider-thumb {
-  background: #426387;
-  border-radius: 50%;
-  width: 16px;
+.label-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
+
+.label-item.selected {
+  background-color: rgba(0, 123, 255, 0.3); /* Highlight selected item */
+  border: 1px solid var(--primary-color); /* Optional: Add border */
+}
+
+/* Label Color Swatch */
+.label-color-swatch {
+  display: inline-block;
+  width: 16px; /* Increased size */
   height: 16px;
-  cursor: pointer;
+  border: 1px solid #999;
+  border-radius: 3px; /* Slight rounding */
+  flex-shrink: 0; /* Prevent swatch from shrinking */
+  margin-top: 3px; /* Align with text baseline */
 }
 
-.center-3dview input[type="range"]::-webkit-slider-runnable-track {
-  background: #d6c7ae;
-  width: 4px;
-  border-radius: 2px;
+/* Label Item Text Container */
+.label-item-text {
+  flex-grow: 1; /* Allow text to take remaining space */
+  color: var(--text-color); /* Ensure text color is readable */
 }
 
-/* 右侧标签控制区域 */
-.right-label-controls .label-controls {
-  padding: 10px;
-  border: 1px solid #ddd;
+.label-tag-text strong {
+   color: var(--text-color); /* Ensure strong text is readable */
 }
 
-/* 标签控制输入框 */
-.right-label-controls input[type="number"],
-.right-label-controls input[type="text"] {
-  margin: 5px 0;
+.label-info-text {
+  font-size: 0.8em;
+  color: #ced4da; /* Lighter color for info */
 }
 
-/* 标签列表 */
-.right-label-controls .label-controls>div:last-child {
-  max-height: 770px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  padding: 5px;
+
+/* --- Responsive Adjustments --- */
+
+/* For screens smaller than 1200px */
+@media (max-width: 1200px) {
+  .viewer-area {
+      flex-direction: column; /* Stack main columns */
+      gap: var(--padding-medium); /* Gap between stacked columns */
+      /* If setting viewer-area max-height, adjust or remove here */
+      max-height: none;
+      overflow-y: visible;
+  }
+
+  .left-views-panel,
+  .center-3dview-panel,
+  .right-label-controls-panel {
+      flex-basis: auto; /* Reset flex basis */
+      min-width: auto; /* Remove min-width */
+      width: 100%; /* Take full width when stacked */
+  }
+
+   .center-3dview-panel {
+      padding: 0; /* Remove horizontal padding when stacked */
+  }
+
+   /* 堆叠时移除 2D 视图容器的最大高度约束 */
+  .view-content-2d {
+      max-height: none !important; /* Use !important ensure override */
+      /* If needed, set a new max-height for stacked layout */
+      /* max-height: 300px; */
+  }
+
+  /* 堆叠时 Canvas 保持宽高比 */
+   .view-canvas {
+       width: 100%;
+       height: auto; /* Height determined by aspect ratio */
+       aspect-ratio: 1 / 1; /* Continue maintaining aspect ratio */
+       flex-grow: 0; /* Prevent excessive growth */
+       flex-basis: auto; /* Auto basis */
+   }
+
+   /* Viewer controls below 3D view */
+   .viewer-controls {
+       flex-direction: row; /* Stack the two control groups vertically */
+       gap: var(--padding-medium); /* Space between the stacked groups */
+   }
+
+   .image-adjustment-controls,
+   .opacity-controls {
+       flex-basis: auto; /* Reset flex basis when stacked */
+       width: 100%; /* Take full width when stacked */
+   }
+
+    /* Keep the internal styling of .controls-group-content (vertical stack of sliders) */
 }
 
-/* 标签项 */
-.right-label-controls .label-controls>div:last-child>div {
-  padding: 5px;
-  cursor: pointer;
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+  body {
+      padding: var(--padding-small); /* Reduce body padding on smaller screens */
+  }
+
+  .upload-section-title,
+  .view-panel h3 {
+      font-size: 1.4em; /* Slightly smaller titles on mobile */
+  }
+
+   .upload-inputs-grid {
+       grid-template-columns: 1fr; /* Single column on small screens */
+       gap: var(--margin-bottom-medium); /* Adjust gap */
+   }
+
+   .upload-section {
+       min-width: auto; /* Remove min-width on very small screens */
+       padding: var(--padding-medium) var(--padding-small); /* Adjust horizontal padding */
+   }
+
+   /* In vertical layout, 2D view content becomes column */
+   .view-content-2d {
+       flex-direction: column;
+       align-items: stretch;
+       gap: var(--margin-bottom-small); /* Adjust gap for vertical layout */
+   }
+
+   /* In vertical layout, slider becomes horizontal */
+   .slice-slider {
+       writing-mode: horizontal-tb;
+       transform: none;
+       width: 100%; /* Take full width */
+       height: auto; /* Auto height */
+       margin: var(--padding-small) 0 0 0; /* Adjust margin */
+   }
+
+   /* Adjust thumb margin for horizontal slider */
+    .slice-slider::-webkit-slider-thumb {
+       margin-top: 0;
+   }
+
+   /* Adjust 3D view container height on smaller screens */
+   .view-content-3d-container {
+       height: 400px; /* Reduce 3D view height on mobile */
+   }
+
+   /* Adjust coordinate inputs layout */
+    .coords-input-group {
+      flex-wrap: wrap; /* Allow coordinate inputs to wrap */
+      gap: var(--padding-small);
+   }
+
+   .coord-input {
+       width: calc(50% - (var(--padding-small) / 2)); /* Two inputs per row */
+       gap: 5px;
+   }
+
+   .coord-input:last-child {
+        width: 100%; /* Last input takes full width */
+   }
+
+   /* Adjust button spacing */
+   .label-action-buttons {
+      gap: var(--padding-small);
+   }
+
+   /* Adjust label list max height */
+   .label-list {
+       max-height: 300px; /* Reduce max height for the list on mobile */
+   }
 }
