@@ -976,7 +976,7 @@ function App() {
       {/* File Upload and Confirmation Area */}
       {(!isNiftiLoaded || !isDataReady) && (
         <div className="upload-section"> {/* Upload area panel */}
-          <h2 className="upload-section-title">Display MRI Glass Brain<br /> with Biopsy Samples(dev)</h2> {/* Title */}
+          <h2 className="upload-section-title">Display MRI Glass Brain<br /> with Biopsy Samples</h2> {/* Title */}
 
           <div className="upload-inputs-grid"> {/* Grid/Flex layout for inputs */}
             {/* NIfTI Upload Group */}
