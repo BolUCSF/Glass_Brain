@@ -1,5 +1,6 @@
 {
-  "name": "glass_brain",
+  "name": "glass-brain",
+  "homepage": "/glass-brain",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

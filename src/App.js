@@ -1049,7 +1049,7 @@ const drawSlice = (canvasRef, slice, plane, flipVertical = false) => {
                       onChange={(e) => setMultiView(e.target.checked)}
                       className="control-checkbox"
                     />
-                    {' '}Show Labels
+                    {' '}Toggle 2D View
                   </label>
                 </div>
 
